@@ -1,0 +1,34 @@
+---
+- hosts: prod
+
+  tasks:
+    - name: getting tomcat url from dlcdn
+      get_url:
+        url: "http://dlcdn.apache.org/tomcat/tomcat-9/v9.0.70/bin/apache-tomcat-9.0.70.tar.gz"
+        dest: "/root/"
+
+    - name: untar the zip file
+      command: tar -zxvf apache-tomcat-9.0.70.tar.gz
+
+    - name: install java
+      command: yum install java-1.8.0-openjdk -y
+
+    - name: replace context.xml 
+      template:
+        src: context.xml
+        dest: /root/apache-tomcat-9.0.70/webapps/manager/META-INF/
+
+    - name: replace tomact-users.xml
+      template:
+        src: tomcat-users.xml
+        dest: /root/apache-tomcat-9.0.70/conf/
+
+    - name: copying war file into slave servers
+      copy:
+        src: webapp.war
+        dest: /root/apache-tomcat-9.0.70/webapps/
+
+    - name: start the tomcat
+      shell: nohup /root/apache-tomcat-9.0.70/bin/startup.sh
+
+    
